@@ -1,5 +1,5 @@
 /**
- * Authenticated HTTP client: inject auth, retry on 429, throw ZohoApiError.
+ * Authenticated HTTP client: inject auth, retry on 429 (prefer Retry-After), 25s timeout, throw ZohoApiError.
  * See docs/DECISIONS.md §2 (refresh on 401) and §3 (429 retry + error shape).
  */
 
@@ -10,6 +10,7 @@ import { ZohoApiError } from "./types.js";
 const MAX_429_RETRIES = 3;
 const INITIAL_429_DELAY_MS = 1000;
 const MAX_5XX_RETRIES = 1;
+const REQUEST_TIMEOUT_MS = 25_000;
 
 function parseRetryAfterMs(headerValue: string | null): number | null {
   if (!headerValue) return null;
@@ -71,10 +72,19 @@ export async function zohoFetch(
       headers["Content-Type"] = "application/json";
     }
 
-    const res = await fetch(url, {
-      ...options,
-      headers,
-    });
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
+
+    let res: Response;
+    try {
+      res = await fetch(url, {
+        ...options,
+        headers,
+        signal: controller.signal,
+      });
+    } finally {
+      clearTimeout(timeoutId);
+    }
 
     if (res.status === 401 && !hasRetried401) {
       const token2 = await refreshAccessToken();

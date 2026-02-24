@@ -49,7 +49,31 @@ npm start
 
 ## MCP Client Config (stdio)
 
-### Cursor
+### Copy-paste: Cursor `mcpServers` entry
+
+In Cursor settings (e.g. **Settings → MCP**), add a server entry. Replace `/path/to/zoho-books-mcp` with your repo path. Env can be loaded from your secrets file or `.env`; ensure `ZOHO_CLIENT_ID`, `ZOHO_CLIENT_SECRET`, `ZOHO_REFRESH_TOKEN`, `ZOHO_ORG_ID` (and optionally `ZOHO_REGION`, `OPENCLAW_SECRETS_DIR`) are set.
+
+```json
+{
+  "mcpServers": {
+    "zoho-books": {
+      "command": "node",
+      "args": ["/path/to/zoho-books-mcp/dist/index.js"],
+      "env": {
+        "ZOHO_CLIENT_ID": "<your client id>",
+        "ZOHO_CLIENT_SECRET": "<your client secret>",
+        "ZOHO_REFRESH_TOKEN": "<your refresh token>",
+        "ZOHO_ORG_ID": "<your org id>",
+        "ZOHO_REGION": "US"
+      }
+    }
+  }
+}
+```
+
+Or point `env` at a script that loads `~/.openclaw/secrets/zoho-books-mcp.json`; then you can omit the keys from the JSON.
+
+### Cursor (manual)
 
 Use your MCP settings to run:
 

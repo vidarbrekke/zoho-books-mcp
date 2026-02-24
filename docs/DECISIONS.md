@@ -104,6 +104,11 @@ Retry on 429 and 5xx with configurable max retries and backoff; expose config. *
 
 **Choice: B.** Retry only on 429 with simple exponential backoff; throw typed `ZohoApiError` for all errors. Balances simplicity and robustness without overbuilding.
 
+### Retry-After and request timeout (addendum)
+
+- **429 delay:** When Zoho sends a `Retry-After` header (seconds or HTTP-date), we use it for the delay before the next attempt; otherwise we use exponential backoff. This avoids retrying too early when the server asks for a specific wait.
+- **Request timeout:** Each HTTP request (including each retry) is limited to **25 seconds** via `AbortController` and `setTimeout`. This prevents hanging agent runs when the API or network is slow or unresponsive; the caller sees an abort error instead of indefinite wait.
+
 ### Implemented in
 
 - `src/core/types.ts` (`ZohoApiError`)

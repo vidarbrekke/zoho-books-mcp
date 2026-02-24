@@ -22,6 +22,7 @@
 ## Rate limiting and retries
 
 - **429 (rate limit):** The HTTP client retries with backoff. It honors the `Retry-After` header when present; otherwise uses exponential backoff (up to 3 retries).
+- **Request timeout:** Each API request has a 25-second timeout to avoid hanging agent runs; see `docs/DECISIONS.md` §3.
 - **5xx:** One retry with backoff to tolerate transient server errors.
 - **401:** Triggers a single token refresh and one retry; concurrent requests share one refresh (single-flight) to avoid thundering herd.
 
