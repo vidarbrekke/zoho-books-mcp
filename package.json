@@ -11,7 +11,9 @@
     "type-check": "tsc --noEmit",
     "lint": "eslint src/**/*.ts",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "secret-scan": "node scripts/secret-scan.js",
+    "oauth-setup": "node scripts/oauth-setup.js"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.0.4",

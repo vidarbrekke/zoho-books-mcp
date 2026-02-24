@@ -18,7 +18,7 @@ describe("loadConfig", () => {
     process.env.ZOHO_CLIENT_SECRET = "secret";
     process.env.ZOHO_REFRESH_TOKEN = "refresh";
     process.env.ZOHO_ORG_ID = "123";
-    expect(() => loadConfig()).toThrow("Missing or empty required env: ZOHO_CLIENT_ID");
+    expect(() => loadConfig()).toThrow(/Missing or empty required config: ZOHO_CLIENT_ID/);
   });
 
   it("throws when ZOHO_REGION is invalid", () => {

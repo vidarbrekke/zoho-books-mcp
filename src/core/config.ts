@@ -1,11 +1,58 @@
 /**
  * Config: validate at startup, expose frozen object.
+ * Loads from OPENCLAW_SECRETS_DIR/zoho-books-mcp.json (or env), then overlays env.
  * See docs/DECISIONS.md §1.
  */
 
+import fs from "node:fs";
+import path from "node:path";
 import type { ZohoRegion } from "./types.js";
 
 const REGIONS: ZohoRegion[] = ["US", "EU", "IN", "AU", "JP", "CA"];
+
+const SECRETS_FILENAME = "zoho-books-mcp.json";
+
+function getSecretsDir(): string {
+  if (process.env["OPENCLAW_SECRETS_DIR"]) {
+    return path.resolve(process.env["OPENCLAW_SECRETS_DIR"]);
+  }
+  const home = process.env["USERPROFILE"] || process.env["HOME"] || ".";
+  return path.join(home, ".openclaw", "secrets");
+}
+
+function loadSecretsFile(): Record<string, string> {
+  const dir = getSecretsDir();
+  const filePath = path.join(dir, SECRETS_FILENAME);
+  if (!fs.existsSync(filePath)) return {};
+  try {
+    ensureFileMode(filePath, 0o600);
+    const raw = fs.readFileSync(filePath, "utf8");
+    const data = JSON.parse(raw) as Record<string, unknown>;
+    const out: Record<string, string> = {};
+    for (const [k, v] of Object.entries(data)) {
+      if (typeof v === "string" && v.trim() !== "") out[k] = v.trim();
+    }
+    return out;
+  } catch (e) {
+    throw new Error(
+      `Failed to load secrets file at ${filePath}: ${e instanceof Error ? e.message : String(e)}`
+    );
+  }
+}
+
+/** Set file to mode if it exists; repair if current mode is too open. */
+export function ensureFileMode(filePath: string, mode: number): void {
+  try {
+    if (!fs.existsSync(filePath)) return;
+    const stats = fs.statSync(filePath);
+    const current = stats.mode & 0o777;
+    if (current !== mode) {
+      fs.chmodSync(filePath, mode);
+    }
+  } catch {
+    // ignore
+  }
+}
 
 /** API domain per region (Books and other zohoapis.com products). */
 const API_HOST: Record<ZohoRegion, string> = {
@@ -53,12 +100,14 @@ function parseRegion(value: string): ZohoRegion {
   );
 }
 
-function requireEnv(name: string): string {
-  const v = process.env[name];
-  if (v === undefined || v.trim() === "") {
-    throw new Error(`Missing or empty required env: ${name}`);
+function requireEnv(name: string, fileCfg: Record<string, string>): string {
+  const v = process.env[name] ?? fileCfg[name];
+  if (v === undefined || String(v).trim() === "") {
+    throw new Error(
+      `Missing or empty required config: ${name}. Set env or add to ${path.join(getSecretsDir(), SECRETS_FILENAME)}.`
+    );
   }
-  return v.trim();
+  return String(v).trim();
 }
 
 function parseReadOnly(value: string | undefined): boolean {
@@ -77,12 +126,18 @@ function parseReadOnly(value: string | undefined): boolean {
 export function loadConfig(): ZohoConfig {
   if (cached) return cached;
 
-  const clientId = requireEnv("ZOHO_CLIENT_ID");
-  const clientSecret = requireEnv("ZOHO_CLIENT_SECRET");
-  const refreshToken = requireEnv("ZOHO_REFRESH_TOKEN");
-  const orgId = requireEnv("ZOHO_ORG_ID");
-  const region = parseRegion(process.env["ZOHO_REGION"] ?? "US");
-  const readOnly = parseReadOnly(process.env["ZOHO_READ_ONLY"]);
+  const fileCfg = loadSecretsFile();
+
+  const clientId = requireEnv("ZOHO_CLIENT_ID", fileCfg);
+  const clientSecret = requireEnv("ZOHO_CLIENT_SECRET", fileCfg);
+  const refreshToken = requireEnv("ZOHO_REFRESH_TOKEN", fileCfg);
+  const orgId = requireEnv("ZOHO_ORG_ID", fileCfg);
+  const region = parseRegion(
+    process.env["ZOHO_REGION"] ?? fileCfg["ZOHO_REGION"] ?? "US"
+  );
+  const readOnly = parseReadOnly(
+    process.env["ZOHO_READ_ONLY"] ?? fileCfg["ZOHO_READ_ONLY"]
+  );
 
   const config: ZohoConfig = Object.freeze({
     clientId,
