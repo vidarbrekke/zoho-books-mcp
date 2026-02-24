@@ -49,4 +49,28 @@ describe("auth", () => {
     setAccessToken("manual");
     expect(getAccessToken()).toBe("manual");
   });
+
+  it("uses single-flight refresh for concurrent calls", async () => {
+    const mockFetch = vi.mocked(fetch);
+    let resolver: ((res: Response) => void) | null = null;
+    const pending = new Promise<Response>((resolve) => {
+      resolver = resolve;
+    });
+    mockFetch.mockReturnValueOnce(pending);
+
+    const p1 = refreshAccessToken();
+    const p2 = refreshAccessToken();
+
+    resolver!(
+      new Response(JSON.stringify({ access_token: "shared_token" }), {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      })
+    );
+
+    const [t1, t2] = await Promise.all([p1, p2]);
+    expect(t1).toBe("shared_token");
+    expect(t2).toBe("shared_token");
+    expect(mockFetch).toHaveBeenCalledTimes(1);
+  });
 });

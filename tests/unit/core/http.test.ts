@@ -53,4 +53,19 @@ describe("http", () => {
     expect(result.invoices).toHaveLength(1);
     expect((result.invoices[0] as { id: string }).id).toBe("inv_1");
   });
+
+  it("does not set Content-Type header for GET without body", async () => {
+    const mockFetch = vi.mocked(fetch);
+    mockFetch.mockResolvedValueOnce(
+      new Response(JSON.stringify({ ok: true }), {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      })
+    );
+    await zohoGet<{ ok: boolean }>("/books/v3/invoices?organization_id=org1");
+    const [, options] = mockFetch.mock.calls[0];
+    const headers = (options?.headers ?? {}) as Record<string, string>;
+    expect(headers["Content-Type"]).toBeUndefined();
+    expect(headers.Authorization).toContain("Zoho-oauthtoken");
+  });
 });

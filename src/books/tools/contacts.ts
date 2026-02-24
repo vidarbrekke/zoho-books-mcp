@@ -5,7 +5,11 @@
 import type { CallToolResult } from "@modelcontextprotocol/sdk/types.js";
 import { z } from "zod";
 import { ZohoBooksClient } from "../client.js";
-import { ZohoApiError } from "../../core/types.js";
+import {
+  formatToolError,
+  shapeListResponse,
+  shapeObjectResponse,
+} from "./common.js";
 
 const books = new ZohoBooksClient();
 
@@ -24,19 +28,32 @@ export const listContactsTool = {
     type: z.enum(["customer", "vendor"]).optional().describe("customer or vendor"),
     page: z.number().min(1).optional().describe("Page number (1-based)"),
     per_page: z.number().min(1).max(200).optional().describe("Items per page"),
+    limit: z.number().min(1).max(200).optional().describe("Alias for per_page"),
+    fields: z.array(z.string()).optional().describe("Optional allowlist of fields"),
+    summary: z.boolean().optional().describe("Return compact summary instead of full payload"),
   },
   handler: async (args: {
     type?: "customer" | "vendor";
     page?: number;
     per_page?: number;
+    limit?: number;
+    fields?: string[];
+    summary?: boolean;
   }): Promise<CallToolResult> => {
     try {
-      const res = await books.listContacts(args);
+      const res = await books.listContacts({
+        ...args,
+        per_page: args.per_page ?? args.limit,
+      });
       const list = (res as { contacts?: unknown[] }).contacts ?? res;
-      return toolResult(JSON.stringify(list, null, 2));
+      const shaped = shapeListResponse({
+        list: Array.isArray(list) ? list : [],
+        fields: args.fields,
+        summary: args.summary,
+      });
+      return toolResult(JSON.stringify(shaped, null, 2));
     } catch (e) {
-      const msg = e instanceof ZohoApiError ? e.message : String(e);
-      return toolResult(`Error: ${msg}`, true);
+      return toolResult(formatToolError(e), true);
     }
   },
 };
@@ -46,14 +63,16 @@ export const getContactTool = {
   description: "Get a single Zoho Books contact (customer or vendor) by ID.",
   inputSchema: {
     contact_id: z.string().describe("The contact ID"),
+    fields: z.array(z.string()).optional().describe("Optional allowlist of fields"),
+    summary: z.boolean().optional().describe("Return compact summary instead of full payload"),
   },
-  handler: async (args: { contact_id: string }): Promise<CallToolResult> => {
+  handler: async (args: { contact_id: string; fields?: string[]; summary?: boolean }): Promise<CallToolResult> => {
     try {
       const contact = await books.getContact(args.contact_id);
-      return toolResult(JSON.stringify(contact, null, 2));
+      const shaped = shapeObjectResponse(contact, args.fields, args.summary);
+      return toolResult(JSON.stringify(shaped, null, 2));
     } catch (e) {
-      const msg = e instanceof ZohoApiError ? e.message : String(e);
-      return toolResult(`Error: ${msg}`, true);
+      return toolResult(formatToolError(e), true);
     }
   },
 };

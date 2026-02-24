@@ -5,7 +5,7 @@
 import type { CallToolResult } from "@modelcontextprotocol/sdk/types.js";
 import { z } from "zod";
 import { ZohoBooksClient } from "../client.js";
-import { ZohoApiError } from "../../core/types.js";
+import { formatToolError, isoDateSchema, shapeObjectResponse } from "./common.js";
 
 const books = new ZohoBooksClient();
 
@@ -32,23 +32,27 @@ export const getReportTool = {
     report_type: z
       .enum(REPORT_TYPES)
       .describe("Type of report to retrieve"),
-    date_start: z.string().optional().describe("Start date YYYY-MM-DD"),
-    date_end: z.string().optional().describe("End date YYYY-MM-DD"),
+    date_start: isoDateSchema.optional().describe("Start date YYYY-MM-DD"),
+    date_end: isoDateSchema.optional().describe("End date YYYY-MM-DD"),
+    fields: z.array(z.string()).optional().describe("Optional allowlist of fields"),
+    summary: z.boolean().optional().describe("Return compact summary instead of full payload"),
   },
   handler: async (args: {
     report_type: (typeof REPORT_TYPES)[number];
     date_start?: string;
     date_end?: string;
+    fields?: string[];
+    summary?: boolean;
   }): Promise<CallToolResult> => {
     try {
       const report = await books.getReport(args.report_type, {
         date_start: args.date_start,
         date_end: args.date_end,
       });
-      return toolResult(JSON.stringify(report, null, 2));
+      const shaped = shapeObjectResponse(report, args.fields, args.summary);
+      return toolResult(JSON.stringify(shaped, null, 2));
     } catch (e) {
-      const msg = e instanceof ZohoApiError ? e.message : String(e);
-      return toolResult(`Error: ${msg}`, true);
+      return toolResult(formatToolError(e), true);
     }
   },
 };

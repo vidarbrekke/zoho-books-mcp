@@ -9,6 +9,18 @@ import { ZohoApiError } from "./types.js";
 
 const MAX_429_RETRIES = 3;
 const INITIAL_429_DELAY_MS = 1000;
+const MAX_5XX_RETRIES = 1;
+
+function parseRetryAfterMs(headerValue: string | null): number | null {
+  if (!headerValue) return null;
+  const seconds = Number(headerValue);
+  if (Number.isFinite(seconds) && seconds >= 0) {
+    return Math.floor(seconds * 1000);
+  }
+  const dateMs = Date.parse(headerValue);
+  if (Number.isNaN(dateMs)) return null;
+  return Math.max(0, dateMs - Date.now());
+}
 
 async function parseErrorResponse(res: Response): Promise<{ code?: number; message: string; details?: Record<string, unknown> }> {
   let message = `HTTP ${res.status}`;
@@ -51,13 +63,17 @@ export async function zohoFetch(
       setAccessToken(token);
     }
 
+    const headers: Record<string, string> = {
+      Authorization: `Zoho-oauthtoken ${token}`,
+      ...(options.headers as Record<string, string> | undefined),
+    };
+    if (options.body !== undefined && headers["Content-Type"] === undefined) {
+      headers["Content-Type"] = "application/json";
+    }
+
     const res = await fetch(url, {
       ...options,
-      headers: {
-        Authorization: `Zoho-oauthtoken ${token}`,
-        "Content-Type": "application/json",
-        ...options.headers,
-      },
+      headers,
     });
 
     if (res.status === 401 && !hasRetried401) {
@@ -67,6 +83,14 @@ export async function zohoFetch(
     }
 
     if (res.status === 429 && retryCount < MAX_429_RETRIES) {
+      const retryAfterMs = parseRetryAfterMs(res.headers.get("retry-after"));
+      const delay =
+        retryAfterMs ?? INITIAL_429_DELAY_MS * Math.pow(2, retryCount);
+      await new Promise((r) => setTimeout(r, delay));
+      return doOne(retryCount + 1, hasRetried401);
+    }
+
+    if (res.status >= 500 && res.status <= 599 && retryCount < MAX_5XX_RETRIES) {
       const delay = INITIAL_429_DELAY_MS * Math.pow(2, retryCount);
       await new Promise((r) => setTimeout(r, delay));
       return doOne(retryCount + 1, hasRetried401);

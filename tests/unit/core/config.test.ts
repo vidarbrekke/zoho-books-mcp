@@ -55,4 +55,26 @@ describe("loadConfig", () => {
     expect(config.apiHost).toBe("www.zohoapis.eu");
     expect(config.accountsHost).toBe("accounts.zoho.eu");
   });
+
+  it("defaults ZOHO_READ_ONLY to true", () => {
+    process.env.ZOHO_CLIENT_ID = "id";
+    process.env.ZOHO_CLIENT_SECRET = "secret";
+    process.env.ZOHO_REFRESH_TOKEN = "refresh";
+    process.env.ZOHO_ORG_ID = "123";
+    process.env.ZOHO_REGION = "US";
+    delete process.env.ZOHO_READ_ONLY;
+    const config = loadConfig();
+    expect(config.readOnly).toBe(true);
+  });
+
+  it("sets ZOHO_READ_ONLY false when env is 0", () => {
+    process.env.ZOHO_CLIENT_ID = "id";
+    process.env.ZOHO_CLIENT_SECRET = "secret";
+    process.env.ZOHO_REFRESH_TOKEN = "refresh";
+    process.env.ZOHO_ORG_ID = "123";
+    process.env.ZOHO_REGION = "US";
+    process.env.ZOHO_READ_ONLY = "0";
+    const config = loadConfig();
+    expect(config.readOnly).toBe(false);
+  });
 });

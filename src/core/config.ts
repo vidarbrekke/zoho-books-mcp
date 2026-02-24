@@ -35,6 +35,7 @@ export interface ZohoConfig {
   readonly region: ZohoRegion;
   readonly apiHost: string;
   readonly accountsHost: string;
+  readonly readOnly: boolean;
 }
 
 let cached: ZohoConfig | null = null;
@@ -60,6 +61,15 @@ function requireEnv(name: string): string {
   return v.trim();
 }
 
+function parseReadOnly(value: string | undefined): boolean {
+  if (value === undefined) return true;
+  const normalized = value.trim().toLowerCase();
+  if (normalized === "0" || normalized === "false" || normalized === "off") {
+    return false;
+  }
+  return true;
+}
+
 /**
  * Load and validate config from environment. Call once at startup.
  * Returns frozen config object.
@@ -72,6 +82,7 @@ export function loadConfig(): ZohoConfig {
   const refreshToken = requireEnv("ZOHO_REFRESH_TOKEN");
   const orgId = requireEnv("ZOHO_ORG_ID");
   const region = parseRegion(process.env["ZOHO_REGION"] ?? "US");
+  const readOnly = parseReadOnly(process.env["ZOHO_READ_ONLY"]);
 
   const config: ZohoConfig = Object.freeze({
     clientId,
@@ -81,6 +92,7 @@ export function loadConfig(): ZohoConfig {
     region,
     apiHost: API_HOST[region],
     accountsHost: ACCOUNTS_HOST[region],
+    readOnly,
   });
 
   cached = config;

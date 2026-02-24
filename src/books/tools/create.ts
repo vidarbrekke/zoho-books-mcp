@@ -5,7 +5,7 @@
 import type { CallToolResult } from "@modelcontextprotocol/sdk/types.js";
 import { z } from "zod";
 import { ZohoBooksClient } from "../client.js";
-import { ZohoApiError } from "../../core/types.js";
+import { assertWriteAllowed, formatToolError, isoDateSchema } from "./common.js";
 
 const books = new ZohoBooksClient();
 
@@ -46,6 +46,7 @@ export const createContactTool = {
     billing_address?: { address?: string; city?: string; state?: string; zip?: string; country?: string };
   }): Promise<CallToolResult> => {
     try {
+      assertWriteAllowed();
       const body: Record<string, unknown> = {
         contact_name: args.contact_name,
         contact_type: args.contact_type,
@@ -57,8 +58,7 @@ export const createContactTool = {
       const contact = await books.createContact(body);
       return toolResult(JSON.stringify(contact, null, 2));
     } catch (e) {
-      const msg = e instanceof ZohoApiError ? e.message : String(e);
-      return toolResult(`Error: ${msg}`, true);
+      return toolResult(formatToolError(e), true);
     }
   },
 };
@@ -80,7 +80,7 @@ export const createInvoiceTool = {
       )
       .min(1)
       .describe("At least one line item (use item_id or name)"),
-    date: z.string().optional().describe("Invoice date YYYY-MM-DD"),
+    date: isoDateSchema.optional().describe("Invoice date YYYY-MM-DD"),
     due_days: z.number().int().min(0).optional().describe("Days until due (default from org)"),
     reference_number: z.string().optional().describe("Your reference number"),
     notes: z.string().optional().describe("Notes visible on invoice"),
@@ -94,6 +94,7 @@ export const createInvoiceTool = {
     notes?: string;
   }): Promise<CallToolResult> => {
     try {
+      assertWriteAllowed();
       const body: Record<string, unknown> = {
         customer_id: args.customer_id,
         line_items: args.line_items.map((li) =>
@@ -109,8 +110,7 @@ export const createInvoiceTool = {
       const invoice = await books.createInvoice(body);
       return toolResult(JSON.stringify(invoice, null, 2));
     } catch (e) {
-      const msg = e instanceof ZohoApiError ? e.message : String(e);
-      return toolResult(`Error: ${msg}`, true);
+      return toolResult(formatToolError(e), true);
     }
   },
 };
