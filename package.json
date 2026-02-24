@@ -9,16 +9,26 @@
     "dev": "tsc --watch",
     "start": "node dist/index.js",
     "type-check": "tsc --noEmit",
-    "lint": "eslint src/**/*.ts"
+    "lint": "eslint src/**/*.ts",
+    "test": "vitest run",
+    "test:watch": "vitest"
   },
   "dependencies": {
-    "@modelcontextprotocol/sdk": "^1.0.4"
+    "@modelcontextprotocol/sdk": "^1.0.4",
+    "zod": "^4.3.6"
   },
   "devDependencies": {
     "@types/node": "^20.11.0",
-    "typescript": "^5.3.3"
+    "typescript": "^5.3.3",
+    "vitest": "^4.0.18"
   },
-  "keywords": ["mcp", "zoho", "books", "accounting", "finance"],
+  "keywords": [
+    "mcp",
+    "zoho",
+    "books",
+    "accounting",
+    "finance"
+  ],
   "author": "Vidar Brekke",
   "license": "MIT"
 }
