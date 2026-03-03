@@ -93,6 +93,51 @@ export class ZohoBooksClient {
     return (res as { expense?: Record<string, unknown> }).expense ?? res;
   }
 
+  /** List bills. Optional filters: status, page, per_page. */
+  async listBills(params?: {
+    status?: string;
+    page?: number;
+    per_page?: number;
+  }): Promise<BooksListResponse<Record<string, unknown>>> {
+    const q: Record<string, string> = {};
+    if (params?.status) q.status = params.status;
+    if (params?.page != null) q.page = String(params.page);
+    if (params?.per_page != null) q.per_page = String(params.per_page);
+    return zohoGet(booksPath("/bills", q));
+  }
+
+  /** Get a single bill by id. */
+  async getBill(billId: string): Promise<Record<string, unknown>> {
+    const res = await zohoGet<{ bill: Record<string, unknown> }>(
+      booksPath(`/bills/${billId}`)
+    );
+    return (res as { bill?: Record<string, unknown> }).bill ?? res;
+  }
+
+  /** List bank transactions. Optional filters: account_id, page, per_page. */
+  async listBankTransactions(params?: {
+    account_id?: string;
+    page?: number;
+    per_page?: number;
+  }): Promise<BooksListResponse<Record<string, unknown>>> {
+    const q: Record<string, string> = {};
+    if (params?.account_id) q.account_id = params.account_id;
+    if (params?.page != null) q.page = String(params.page);
+    if (params?.per_page != null) q.per_page = String(params.per_page);
+    return zohoGet(booksPath("/banktransactions", q));
+  }
+
+  /** List bank accounts from chart of accounts. */
+  async listBankAccounts(params?: {
+    page?: number;
+    per_page?: number;
+  }): Promise<BooksListResponse<Record<string, unknown>>> {
+    const q: Record<string, string> = { account_type: "BANK" };
+    if (params?.page != null) q.page = String(params.page);
+    if (params?.per_page != null) q.per_page = String(params.per_page);
+    return zohoGet(booksPath("/chartofaccounts", q));
+  }
+
   /** List items (products/services). Optional: page, per_page. */
   async listItems(params?: {
     page?: number;

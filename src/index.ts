@@ -12,6 +12,11 @@ import { listExpensesTool, getExpenseTool } from "./books/tools/expenses.js";
 import { listItemsTool, getItemTool } from "./books/tools/items.js";
 import { getReportTool } from "./books/tools/reports.js";
 import { createContactTool, createInvoiceTool } from "./books/tools/create.js";
+import { listBillsTool, getBillTool } from "./books/tools/bills.js";
+import {
+  listBankAccountsTool,
+  listBankTransactionsTool,
+} from "./books/tools/banking.js";
 
 loadConfig();
 
@@ -47,6 +52,14 @@ server.registerTool(getExpenseTool.name, {
   description: getExpenseTool.description,
   inputSchema: getExpenseTool.inputSchema,
 }, getExpenseTool.handler);
+server.registerTool(listBillsTool.name, {
+  description: listBillsTool.description,
+  inputSchema: listBillsTool.inputSchema,
+}, listBillsTool.handler);
+server.registerTool(getBillTool.name, {
+  description: getBillTool.description,
+  inputSchema: getBillTool.inputSchema,
+}, getBillTool.handler);
 server.registerTool(listItemsTool.name, {
   description: listItemsTool.description,
   inputSchema: listItemsTool.inputSchema,
@@ -55,6 +68,14 @@ server.registerTool(getItemTool.name, {
   description: getItemTool.description,
   inputSchema: getItemTool.inputSchema,
 }, getItemTool.handler);
+server.registerTool(listBankTransactionsTool.name, {
+  description: listBankTransactionsTool.description,
+  inputSchema: listBankTransactionsTool.inputSchema,
+}, listBankTransactionsTool.handler);
+server.registerTool(listBankAccountsTool.name, {
+  description: listBankAccountsTool.description,
+  inputSchema: listBankAccountsTool.inputSchema,
+}, listBankAccountsTool.handler);
 server.registerTool(getReportTool.name, {
   description: getReportTool.description,
   inputSchema: getReportTool.inputSchema,

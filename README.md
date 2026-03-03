@@ -93,6 +93,10 @@ Add an MCP server entry using stdio with the same command/args/env as above.
 - `zoho_books_get_contact`
 - `zoho_books_list_expenses`
 - `zoho_books_get_expense`
+- `zoho_books_list_bills`
+- `zoho_books_get_bill`
+- `zoho_books_list_bank_transactions`
+- `zoho_books_list_bank_accounts`
 - `zoho_books_list_items`
 - `zoho_books_get_item`
 - `zoho_books_get_report`
