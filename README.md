@@ -47,7 +47,7 @@ npm run build
 npm start
 ```
 
-You can also start the MCP server using the local `.env` file directly (useful when values are stored there and not exported in your shell):
+Use explicit startup commands when you want to control the running process:
 
 ```bash
 ./scripts/run-mcp-with-env.sh
@@ -66,6 +66,42 @@ You can verify it started with:
 
 ```bash
 ps -ef | grep dist/index.js
+```
+
+### Process control helper (recommended)
+
+After `npm run build`, use:
+
+```bash
+./scripts/mcp-service.sh start
+./scripts/mcp-service.sh status
+./scripts/mcp-service.sh stop
+./scripts/mcp-service.sh restart
+./scripts/mcp-service.sh logs
+```
+
+Optional env vars:
+
+```bash
+export ZOHO_MCP_LOG=/path/to/zoho-mcp.log
+export ZOHO_MCP_TAIL=200
+```
+
+Raw command equivalents (if you prefer not to use the helper):
+
+```bash
+cd /path/to/zoho-books-mcp
+npm run build
+set -a && source .env && set +a
+nohup node dist/index.js < /dev/null > /tmp/zoho-mcp.log 2>&1 & echo $!
+ps -ef | grep dist/index.js
+kill <pid>
+```
+
+Stop all MCP server processes:
+
+```bash
+pkill -f 'node dist/index.js'
 ```
 
 ## MCP Client Config (stdio)

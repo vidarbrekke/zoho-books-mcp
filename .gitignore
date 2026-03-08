@@ -3,5 +3,6 @@ dist/
 .env
 .linode.env
 *.log
+.zoho-mcp.pid
 .DS_Store
 prompts.txt
