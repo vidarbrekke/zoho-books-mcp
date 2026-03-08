@@ -47,6 +47,27 @@ npm run build
 npm start
 ```
 
+You can also start the MCP server using the local `.env` file directly (useful when values are stored there and not exported in your shell):
+
+```bash
+./scripts/run-mcp-with-env.sh
+```
+
+For a headless server (example path for this project on Linode), start from the repo root with:
+
+```bash
+cd /root/openclaw-stock-home/.openclaw/workspace/repositories/zoho
+npm install
+npm run build
+./scripts/run-mcp-with-env.sh < /dev/null > /tmp/zoho-mcp.log 2>&1 &
+```
+
+You can verify it started with:
+
+```bash
+ps -ef | grep dist/index.js
+```
+
 ## MCP Client Config (stdio)
 
 ### Copy-paste: Cursor `mcpServers` entry
