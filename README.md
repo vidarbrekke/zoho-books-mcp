@@ -157,6 +157,29 @@ ZOHO_MCP_LOGROTATE_ROTATE=7           # keep N rotated logs
 ZOHO_MCP_LOGROTATE_FILE=/etc/logrotate.d/zoho-books-mcp  # override rotate destination
 ```
 
+Validate deployment at any time:
+
+```bash
+sudo ./scripts/check-systemd-deploy.sh
+```
+
+This check verifies:
+
+- unit and timer files are enabled/running
+- startup/build + runtime smoke check via `scripts/mcp-healthcheck.sh`
+- optional logrotate presence when `ZOHO_MCP_CHECK_LOGROTATE=1`
+
+Uninstall systemd artifacts:
+
+```bash
+sudo ZOHO_MCP_REMOVE_LOGS=1 \\
+  ZOHO_MCP_REMOVE_LOGROTATE=1 \\
+  ./scripts/uninstall-systemd-service.sh
+```
+
+- `ZOHO_MCP_REMOVE_LOGS` removes `.zoho-mcp.log` and `.zoho-mcp.pid` from repo root.
+- `ZOHO_MCP_REMOVE_LOGROTATE` removes `/etc/logrotate.d/zoho-books-mcp` when `ZOHO_MCP_LOGROTATE_FILE` points there.
+
 ## MCP Client Config (stdio)
 
 ### Copy-paste: Cursor `mcpServers` entry
