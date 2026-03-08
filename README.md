@@ -115,15 +115,21 @@ For production-style hosts (for example Linode), use the installer helper to dep
 sudo ZOHO_MCP_NODE_BIN=/usr/bin/node \\
   ZOHO_MCP_ENV_FILE=/etc/zoho-books-mcp.env \\
   ZOHO_MCP_SECRETS_DIR=/root/.openclaw/secrets \\
+  ZOHO_MCP_SERVICE_USER=root \\
+  ZOHO_MCP_SERVICE_GROUP=root \\
+  ZOHO_MCP_HEALTHCHECK_BOOT=2m \\
+  ZOHO_MCP_HEALTHCHECK_INTERVAL=5m \\
   ./scripts/install-systemd-service.sh
 ```
 
 That script:
 
+- installs versioned unit templates from `scripts/systemd/*.tpl`
 - installs `zoho-books-mcp.service` (long-running MCP process)
 - installs `zoho-books-mcp-healthcheck.service` + timer
 - enables `Restart=` and boot-start behavior
 - starts service and timer immediately
+- optional: install logrotate config with `ZOHO_MCP_LOGROTATE=1`
 
 Check health and status:
 
@@ -140,6 +146,15 @@ ZOHO_READ_ONLY=1
 ZOHO_REGION=US
 ZOHO_MCP_LOG=/var/log/zoho-mcp.log
 ZOHO_MCP_TAIL=200
+```
+
+Optional deployment-only envs (passed to `./scripts/install-systemd-service.sh`):
+
+```bash
+ZOHO_MCP_LOGROTATE=1                 # install /etc/logrotate.d/zoho-books-mcp
+ZOHO_MCP_LOGROTATE_SIZE=100M          # minimum file size threshold in logrotate
+ZOHO_MCP_LOGROTATE_ROTATE=7           # keep N rotated logs
+ZOHO_MCP_LOGROTATE_FILE=/etc/logrotate.d/zoho-books-mcp  # override rotate destination
 ```
 
 ## MCP Client Config (stdio)
