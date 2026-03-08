@@ -107,6 +107,41 @@ Stop all MCP server processes:
 pkill -f 'node dist/index.js'
 ```
 
+## Systemd deployment (daemon + restart + boot persistence)
+
+For production-style hosts (for example Linode), use the installer helper to deploy systemd:
+
+```bash
+sudo ZOHO_MCP_NODE_BIN=/usr/bin/node \\
+  ZOHO_MCP_ENV_FILE=/etc/zoho-books-mcp.env \\
+  ZOHO_MCP_SECRETS_DIR=/root/.openclaw/secrets \\
+  ./scripts/install-systemd-service.sh
+```
+
+That script:
+
+- installs `zoho-books-mcp.service` (long-running MCP process)
+- installs `zoho-books-mcp-healthcheck.service` + timer
+- enables `Restart=` and boot-start behavior
+- starts service and timer immediately
+
+Check health and status:
+
+```bash
+sudo systemctl status zoho-books-mcp.service
+sudo systemctl status zoho-books-mcp-healthcheck.timer
+sudo systemctl start zoho-books-mcp-healthcheck.service
+```
+
+Optional service override file: `/etc/zoho-books-mcp.env`
+
+```bash
+ZOHO_READ_ONLY=1
+ZOHO_REGION=US
+ZOHO_MCP_LOG=/var/log/zoho-mcp.log
+ZOHO_MCP_TAIL=200
+```
+
 ## MCP Client Config (stdio)
 
 ### Copy-paste: Cursor `mcpServers` entry
