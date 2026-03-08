@@ -5,7 +5,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 TEMPLATE_DIR="$SCRIPT_DIR/systemd"
 SYSTEMD_SERVICE="zoho-books-mcp"
-NODE_BIN="${ZOHO_MCP_NODE_BIN:-/usr/bin/node}"
+NODE_BIN="${ZOHO_MCP_NODE_BIN:-}"
 SERVICE_USER="${ZOHO_MCP_SERVICE_USER:-root}"
 SERVICE_GROUP="${ZOHO_MCP_SERVICE_GROUP:-$SERVICE_USER}"
 LOG_FILE="${ZOHO_MCP_LOG:-$PROJECT_ROOT/.zoho-mcp.log}"
@@ -24,6 +24,11 @@ need_cmd() {
     exit 1
   fi
 }
+
+if [ -z "$NODE_BIN" ]; then
+  NODE_BIN="$(command -v node || true)"
+  NODE_BIN="${NODE_BIN:-/usr/bin/node}"
+fi
 
 render_template() {
   local template_file="$1"
