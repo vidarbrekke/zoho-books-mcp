@@ -180,6 +180,14 @@ sudo ZOHO_MCP_REMOVE_LOGS=1 \\
 - `ZOHO_MCP_REMOVE_LOGS` removes `.zoho-mcp.log` and `.zoho-mcp.pid` from repo root.
 - `ZOHO_MCP_REMOVE_LOGROTATE` removes `/etc/logrotate.d/zoho-books-mcp` when `ZOHO_MCP_LOGROTATE_FILE` points there.
 
+GitHub CI also runs a deployment asset check on every push/PR:
+
+```bash
+./scripts/ci-validate-systemd-assets.sh
+```
+
+That CI check renders templates in CI (no root/systemctl access required) and validates the generated unit/timer/service shape.
+
 ## MCP Client Config (stdio)
 
 ### Copy-paste: Cursor `mcpServers` entry

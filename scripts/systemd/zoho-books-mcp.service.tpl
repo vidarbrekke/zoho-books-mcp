@@ -1,6 +1,8 @@
 [Unit]
 Description=Zoho Books MCP Server
 After=network.target
+StartLimitIntervalSec=60
+StartLimitBurst=5
 
 [Service]
 Type=simple
@@ -13,8 +15,6 @@ EnvironmentFile=-{{ENV_FILE}}
 ExecStart=/bin/sh -c 'tail -f /dev/null | {{NODE_BIN}} {{PROJECT_ROOT}}/dist/index.js'
 Restart=always
 RestartSec=5
-StartLimitIntervalSec=60
-StartLimitBurst=5
 KillSignal=SIGINT
 TimeoutStopSec=20
 StandardOutput=append:{{LOG_FILE}}
