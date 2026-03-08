@@ -35,10 +35,12 @@ start() {
     return 0
   fi
   set -a
-  # shellcheck source=/dev/null
-  source "$ROOT/.env"
+  if [ -f "$ROOT/.env" ]; then
+    # shellcheck source=/dev/null
+    source "$ROOT/.env"
+  fi
   set +a
-  nohup /usr/bin/node "$ROOT/dist/index.js" < /dev/null >> "$LOG_FILE" 2>&1 &
+  nohup sh -c "tail -f /dev/null | /usr/bin/node '$ROOT/dist/index.js'" >> "$LOG_FILE" 2>&1 &
   echo $! > "$PID_FILE"
   sleep 1
   status
