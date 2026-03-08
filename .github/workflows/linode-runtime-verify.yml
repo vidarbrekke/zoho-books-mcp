@@ -1,0 +1,35 @@
+name: Linode Runtime Verify
+
+on:
+  workflow_dispatch:
+    inputs:
+      check_logrotate:
+        description: Verify optional logrotate configuration exists on remote
+        type: boolean
+        required: false
+        default: false
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Remote runtime verification on Linode
+        uses: appleboy/ssh-action@v1.2.1
+        with:
+          host: ${{ secrets.LINODE_HOST }}
+          username: ${{ secrets.LINODE_USER }}
+          key: ${{ secrets.LINODE_SSH_KEY }}
+          port: 22
+          command_timeout: 10m
+          script: |
+            set -euo pipefail
+            cd ~/repositories/zoho-books-mcp
+            export ZOHO_MCP_CHECK_LOGROTATE="${{ github.event.inputs.check_logrotate == 'true' && '1' || '0' }}"
+            ./scripts/check-systemd-deploy.sh

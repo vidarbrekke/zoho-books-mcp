@@ -188,6 +188,18 @@ GitHub CI also runs a deployment asset check on every push/PR:
 
 That CI check renders templates in CI (no root/systemctl access required) and validates the generated unit/timer/service shape.
 
+Manual runtime verification can be triggered against a hosted Linode after deployment:
+
+```bash
+gh workflow run "Linode Runtime Verify" --field check_logrotate=true
+```
+
+Required repository secrets for this workflow:
+
+- `LINODE_HOST`
+- `LINODE_USER`
+- `LINODE_SSH_KEY`
+
 ## MCP Client Config (stdio)
 
 ### Copy-paste: Cursor `mcpServers` entry
