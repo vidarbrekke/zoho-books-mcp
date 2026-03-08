@@ -1,6 +1,7 @@
 node_modules/
 dist/
 .env
+.linode.env
 *.log
 .DS_Store
 prompts.txt
