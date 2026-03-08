@@ -200,6 +200,18 @@ Use a custom remote repo path if needed:
 gh workflow run "Linode Runtime Verify" --field repo_path=/root/repositories/zoho-books-mcp --field check_logrotate=false
 ```
 
+Optional workflow inputs (all are optional):
+
+- `repo_path`: absolute path of the checkout on Linode
+- `systemctl_bin`: full path to the `systemctl` binary
+- `check_logrotate`: set to `true` to validate logrotate wiring
+
+If `systemctl` is installed outside the default PATH on the remote host, pass it explicitly:
+
+```bash
+gh workflow run "Linode Runtime Verify" --field repo_path=/root/repositories/zoho-books-mcp --field systemctl_bin=/usr/bin/systemctl --field check_logrotate=false
+```
+
 Required repository secrets for this workflow:
 
 - `LINODE_HOST`

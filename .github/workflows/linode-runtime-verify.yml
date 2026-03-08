@@ -13,6 +13,11 @@ on:
         type: boolean
         required: false
         default: false
+      systemctl_bin:
+        description: Full path to systemctl on the remote host.
+        type: string
+        required: false
+        default: systemctl
 
 permissions:
   contents: read
@@ -38,5 +43,6 @@ jobs:
             REPO_PATH="${{ github.event.inputs.repo_path || '/root/repositories/zoho-books-mcp' }}"
             export ZOHO_MCP_REPO_PATH="$REPO_PATH"
             export ZOHO_MCP_CHECK_LOGROTATE="${{ github.event.inputs.check_logrotate == 'true' && '1' || '0' }}"
+            export ZOHO_MCP_SYSTEMCTL_BIN="${{ github.event.inputs.systemctl_bin }}"
             cd "$REPO_PATH"
             ./scripts/check-systemd-deploy.sh
