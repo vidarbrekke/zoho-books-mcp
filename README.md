@@ -62,6 +62,9 @@ npm run build
 ./scripts/run-mcp-with-env.sh < /dev/null > /tmp/zoho-mcp.log 2>&1 &
 ```
 
+`src/index.ts` now routes stdio through the registry transport by default.
+Set `ZOHO_MCP_TRANSPORT=sdk` before startup to force the legacy SDK path.
+
 You can verify it started with:
 
 ```bash
@@ -159,6 +162,118 @@ Add an MCP server entry using stdio with the same command/args/env as above.
 - `zoho_books_get_report`
 - `zoho_books_create_contact` (disabled when `ZOHO_READ_ONLY=1`)
 - `zoho_books_create_invoice` (disabled when `ZOHO_READ_ONLY=1`)
+
+## Practical Accounting Examples
+
+Use these argument shapes when calling tools in OpenClaw/Cursor/Claude MCP clients.
+
+- List invoices (filtered + pagination):
+
+```json
+{
+  "method": "tools/call",
+  "params": {
+    "name": "zoho_books_list_invoices",
+    "arguments": {
+      "page": 1,
+      "per_page": 20,
+      "date_start": "2025-01-01",
+      "date_end": "2025-01-31"
+    }
+  }
+}
+```
+
+- Get one invoice:
+
+```json
+{
+  "method": "tools/call",
+  "params": {
+    "name": "zoho_books_get_invoice",
+    "arguments": {
+      "invoice_id": "1234567890000000000",
+      "summary": true
+    }
+  }
+}
+```
+
+- List bills:
+
+```json
+{
+  "method": "tools/call",
+  "params": {
+    "name": "zoho_books_list_bills",
+    "arguments": {
+      "status": "open",
+      "page": 1,
+      "per_page": 20
+    }
+  }
+}
+```
+
+- Get a bill:
+
+```json
+{
+  "method": "tools/call",
+  "params": {
+    "name": "zoho_books_get_bill",
+    "arguments": {
+      "bill_id": "9876543210000000000"
+    }
+  }
+}
+```
+
+- List bank transactions:
+
+```json
+{
+  "method": "tools/call",
+  "params": {
+    "name": "zoho_books_list_bank_transactions",
+    "arguments": {
+      "account_id": "123400000000000000",
+      "page": 1,
+      "per_page": 50
+    }
+  }
+}
+```
+
+- List bank accounts:
+
+```json
+{
+  "method": "tools/call",
+  "params": {
+    "name": "zoho_books_list_bank_accounts",
+    "arguments": {
+      "is_active": true
+    }
+  }
+}
+```
+
+- Get report with date range:
+
+```json
+{
+  "method": "tools/call",
+  "params": {
+    "name": "zoho_books_get_report",
+    "arguments": {
+      "report_type": "profit_and_loss",
+      "date_start": "2025-01-01",
+      "date_end": "2025-01-31"
+    }
+  }
+}
+```
 
 ## Safety Notes
 

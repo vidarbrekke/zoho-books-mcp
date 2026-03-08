@@ -29,4 +29,18 @@ describe("createContactTool read-only guard", () => {
     const text = result.content[0].type === "text" ? result.content[0].text : "";
     expect(text).toContain("Write tools are disabled");
   });
+
+  it("allows writes when ZOHO_READ_ONLY is disabled", async () => {
+    clearConfigCache();
+    process.env.ZOHO_READ_ONLY = "0";
+    loadConfig();
+
+    const result = await createContactTool.handler({
+      contact_name: "Jane Doe",
+      contact_type: "customer",
+    });
+    expect(result.isError).toBe(false);
+    const text = result.content[0].type === "text" ? result.content[0].text : "";
+    expect(text).toContain("contact_id");
+  });
 });

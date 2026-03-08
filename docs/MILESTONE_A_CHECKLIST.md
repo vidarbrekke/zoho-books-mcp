@@ -102,13 +102,13 @@ Status legend: `[ ]` todo, `[x]` done
 
 ## A5. README and Developer UX
 
-- [ ] Update `README.md` Books tool list if any mismatch remains.
-- [ ] Add/verify practical accounting usage examples for:
-  - [ ] bills list/get
-  - [ ] bank transaction listing
-  - [ ] bank account listing
-  - [ ] report retrieval with date range
-- [ ] Ensure examples use the actual tool names and field names.
+- [x] Update `README.md` Books tool list if any mismatch remains.
+- [x] Add/verify practical accounting usage examples for:
+  - [x] bills list/get
+  - [x] bank transaction listing
+  - [x] bank account listing
+  - [x] report retrieval with date range
+- [x] Ensure examples use the actual tool names and field names.
 
 **Acceptance**
 - A new developer or operator can discover and use accounting tools without guessing.
@@ -117,11 +117,11 @@ Status legend: `[ ]` todo, `[x]` done
 
 ## A6. Final Verification Gate
 
-- [ ] Run full verification before handoff:
-  - [ ] `npm test`
-  - [ ] `npm run type-check`
-- [ ] Confirm no unrelated files were changed.
-- [ ] Prepare short changelog note for Milestone A completion.
+- [x] Run full verification before handoff:
+  - [x] `npm run test`
+  - [x] `npm run type-check`
+- [x] Confirm no unrelated files were changed.
+- [x] Prepare short changelog note for Milestone A completion.
 
 **Acceptance**
 - Milestone A is merge-ready with passing checks and scoped changes only.

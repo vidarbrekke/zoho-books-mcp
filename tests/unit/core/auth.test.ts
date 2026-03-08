@@ -1,10 +1,17 @@
 import { describe, it, expect, beforeEach, vi } from "vitest";
-import { refreshAccessToken, getAccessToken, setAccessToken } from "../../../src/core/auth.js";
+import {
+  refreshAccessToken,
+  getAccessToken,
+  setAccessToken,
+  setTokenProvider,
+  resetTokenProviderForTests,
+} from "../../../src/core/auth.js";
 import { loadConfig, clearConfigCache } from "../../../src/core/config.js";
 
 describe("auth", () => {
   beforeEach(() => {
     clearConfigCache();
+    resetTokenProviderForTests();
     vi.stubGlobal("fetch", vi.fn());
     process.env.ZOHO_CLIENT_ID = "cid";
     process.env.ZOHO_CLIENT_SECRET = "csecret";
@@ -72,5 +79,19 @@ describe("auth", () => {
     expect(t1).toBe("shared_token");
     expect(t2).toBe("shared_token");
     expect(mockFetch).toHaveBeenCalledTimes(1);
+  });
+
+  it("supports swapping token provider via seam", async () => {
+    const mockRefresh = vi.fn().mockResolvedValue("provider-token");
+    setTokenProvider({
+      getAccessToken: () => "provider-token",
+      refreshAccessToken: async () => mockRefresh(),
+      setAccessToken: () => undefined,
+    });
+
+    const token = await refreshAccessToken();
+    expect(token).toBe("provider-token");
+    expect(mockRefresh).toHaveBeenCalledTimes(1);
+    expect(getAccessToken()).toBe("provider-token");
   });
 });

@@ -59,6 +59,42 @@ The server needs these to call the Zoho Books API. **We have not created these i
 
 ---
 
+## 4. Milestone A readiness smoke runbook
+
+- [ ] Confirm tooling:
+  - [ ] `npm install`
+  - [ ] `npm run build`
+  - [ ] `npm run test`
+  - [ ] `npm run type-check`
+
+- [ ] Confirm read tools resolve with real MCP-style requests:
+  - [ ] `initialize`
+  - [ ] `tools/list`
+  - [ ] `tools/call` for `zoho_books_list_invoices`, `zoho_books_list_bills`, `zoho_books_get_report`
+
+- [ ] Confirm write guarding:
+  - [ ] `ZOHO_READ_ONLY=1` blocks write tools (`create_contact`, `create_invoice`) with the expected API error message.
+  - [ ] `ZOHO_READ_ONLY=0` allows writes if credentials + refresh token are valid.
+
+- [ ] Confirm transport/invariants:
+  - [ ] `tools/call` payloads include `service` and `operation` in normalized envelopes.
+  - [ ] Repeated parallel calls do not exhaust with malformed behavior (no unbounded queue growth).
+
+- [ ] Confirm docs/UX are complete for developers:
+  - [ ] `README.md` usage examples for bills, banks, and date-ranged report calls are present.
+  - [ ] Checklist item A5 can be marked complete.
+  - [ ] Checklist item A6 can be marked complete.
+
+Expected command for one-off smoke check (local, after `npm run build`):
+
+```bash
+node dist/index.js <<'EOF'
+{"jsonrpc":"2.0","id":"init","method":"initialize","params":{}}
+{"jsonrpc":"2.0","id":"list","method":"tools/list"}
+{"jsonrpc":"2.0","id":"example-call","method":"tools/call","params":{"name":"zoho_books_list_bills","arguments":{"status":"open"}}}
+EOF
+```
+
 ## Summary
 
 - **Code:** Ready (tools, config, secrets file support).

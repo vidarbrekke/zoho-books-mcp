@@ -67,5 +67,64 @@ describe("http", () => {
     const headers = (options?.headers ?? {}) as Record<string, string>;
     expect(headers["Content-Type"]).toBeUndefined();
     expect(headers.Authorization).toContain("Zoho-oauthtoken");
+});
+
+it("retries 429 with Retry-After", async () => {
+  const mockFetch = vi.mocked(fetch);
+  vi.useFakeTimers();
+  mockFetch
+    .mockResolvedValueOnce(
+      new Response(JSON.stringify({ code: 0, message: "Too Many Requests" }), {
+        status: 429,
+        headers: { "content-type": "application/json", "retry-after": "1" },
+      })
+    )
+    .mockResolvedValueOnce(
+      new Response(JSON.stringify({ invoices: [{ id: "inv_1" }] }), {
+        status: 200,
+        headers: { "content-type": "application/json" },
+      })
+    );
+
+  const promise = zohoGet<{ invoices: unknown[] }>("/books/v3/invoices?organization_id=org1");
+  await vi.advanceTimersToNextTimerAsync();
+  const result = await promise;
+
+  expect(result.invoices).toHaveLength(1);
+  expect(mockFetch).toHaveBeenCalledTimes(2);
+  vi.useRealTimers();
+});
+
+it("retries one 5xx response and succeeds", async () => {
+  const mockFetch = vi.mocked(fetch);
+  vi.useFakeTimers();
+  mockFetch
+    .mockResolvedValueOnce(new Response("{}", { status: 500 }))
+    .mockResolvedValueOnce(new Response(JSON.stringify({ ok: true }), {
+      status: 200,
+      headers: { "content-type": "application/json" },
+    }));
+
+  const promise = zohoGet<{ ok: boolean }>("/books/v3/invoices?organization_id=org1");
+  await vi.advanceTimersToNextTimerAsync();
+  const result = await promise;
+
+  expect(result.ok).toBe(true);
+  expect(mockFetch).toHaveBeenCalledTimes(2);
+  vi.useRealTimers();
+});
+
+it("does not retry for non-retryable 400 responses", async () => {
+  const mockFetch = vi.mocked(fetch);
+  mockFetch.mockResolvedValueOnce(
+    new Response(JSON.stringify({ message: "Invalid request", code: 123 }), {
+      status: 400,
+      headers: { "Content-Type": "application/json" },
+    })
+  );
+  await expect(
+    zohoGet("/books/v3/invoices?organization_id=org1")
+  ).rejects.toThrow("Invalid request");
+  expect(mockFetch).toHaveBeenCalledTimes(1);
   });
 });
