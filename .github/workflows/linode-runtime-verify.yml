@@ -3,6 +3,11 @@ name: Linode Runtime Verify
 on:
   workflow_dispatch:
     inputs:
+      repo_path:
+        description: Absolute path to the checked-out zoho-books-mcp repo on the remote host.
+        type: string
+        required: false
+        default: /root/repositories/zoho-books-mcp
       check_logrotate:
         description: Verify optional logrotate configuration exists on remote
         type: boolean
@@ -30,6 +35,8 @@ jobs:
           command_timeout: 10m
           script: |
             set -euo pipefail
-            cd ~/repositories/zoho-books-mcp
+            REPO_PATH="${{ github.event.inputs.repo_path || '/root/repositories/zoho-books-mcp' }}"
+            export ZOHO_MCP_REPO_PATH="$REPO_PATH"
             export ZOHO_MCP_CHECK_LOGROTATE="${{ github.event.inputs.check_logrotate == 'true' && '1' || '0' }}"
+            cd "$REPO_PATH"
             ./scripts/check-systemd-deploy.sh

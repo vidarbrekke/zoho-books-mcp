@@ -194,6 +194,12 @@ Manual runtime verification can be triggered against a hosted Linode after deplo
 gh workflow run "Linode Runtime Verify" --field check_logrotate=true
 ```
 
+Use a custom remote repo path if needed:
+
+```bash
+gh workflow run "Linode Runtime Verify" --field repo_path=/root/repositories/zoho-books-mcp --field check_logrotate=false
+```
+
 Required repository secrets for this workflow:
 
 - `LINODE_HOST`

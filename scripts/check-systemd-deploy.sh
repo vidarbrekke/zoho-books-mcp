@@ -2,7 +2,8 @@
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+PROJECT_ROOT="${ZOHO_MCP_REPO_PATH:-$(cd "$SCRIPT_DIR/.." && pwd)}"
+PROJECT_ROOT="$(cd "$PROJECT_ROOT" && pwd)"
 SERVICE_NAME="zoho-books-mcp"
 SYSTEM_CTL="${ZOHO_MCP_SYSTEMCTL_BIN:-systemctl}"
 NODE_BIN="${ZOHO_MCP_NODE_BIN:-/usr/bin/node}"
