@@ -180,7 +180,7 @@ sudo ZOHO_MCP_REMOVE_LOGS=1 \\
 - `ZOHO_MCP_REMOVE_LOGS` removes `.zoho-mcp.log` and `.zoho-mcp.pid` from repo root.
 - `ZOHO_MCP_REMOVE_LOGROTATE` removes `/etc/logrotate.d/zoho-books-mcp` when `ZOHO_MCP_LOGROTATE_FILE` points there.
 
-GitHub CI also runs a deployment asset check on every push/PR:
+When re-enabled, GitHub CI runs a deployment asset check on every push/PR:
 
 ```bash
 ./scripts/ci-validate-systemd-assets.sh
@@ -188,7 +188,7 @@ GitHub CI also runs a deployment asset check on every push/PR:
 
 That CI check renders templates in CI (no root/systemctl access required) and validates the generated unit/timer/service shape.
 
-Manual runtime verification can be triggered against a hosted Linode after deployment:
+Manual runtime verification can be triggered against a hosted Linode after deployment when re-enabled:
 
 ```bash
 gh workflow run "Linode Runtime Verify" --field check_logrotate=true
