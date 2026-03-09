@@ -218,6 +218,14 @@ Required repository secrets for this workflow:
 - `LINODE_USER`
 - `LINODE_SSH_KEY`
 
+You can verify the required secret names are configured from the CLI:
+
+```bash
+gh secret list --repo vidarbrekke/zoho-books-mcp --app actions --json name --jq '.[].name'
+```
+
+If this returns no output for `LINODE_HOST`, `LINODE_USER`, or `LINODE_SSH_KEY`, the manual runtime verification run will fail with `missing server host`.
+
 ## MCP Client Config (stdio)
 
 ### Copy-paste: Cursor `mcpServers` entry
