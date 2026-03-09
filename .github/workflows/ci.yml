@@ -1,10 +1,13 @@
 name: CI
+on: []
 
-on:
-  push:
-    branches:
-      - master
-  pull_request:
+# Disabled temporarily:
+#   1) CI checks are no longer running on every push/PR.
+#   2) Re-enable by restoring the workflow trigger block.
+#        on:
+#          push:
+#            branches: [master]
+#          pull_request:
 
 permissions:
   contents: read

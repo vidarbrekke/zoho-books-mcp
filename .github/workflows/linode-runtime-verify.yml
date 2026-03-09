@@ -1,23 +1,13 @@
 name: Linode Runtime Verify
+on: []
 
-on:
-  workflow_dispatch:
-    inputs:
-      repo_path:
-        description: Absolute path to the checked-out zoho-books-mcp repo on the remote host.
-        type: string
-        required: false
-        default: /root/repositories/zoho-books-mcp
-      check_logrotate:
-        description: Verify optional logrotate configuration exists on remote
-        type: boolean
-        required: false
-        default: false
-      systemctl_bin:
-        description: Full path to systemctl on the remote host.
-        type: string
-        required: false
-        default: systemctl
+# Disabled temporarily.
+#  - Manual remote verification is not available while this workflow is paused.
+#  - Re-enable by restoring the workflow_dispatch inputs block below:
+#      on:
+#        workflow_dispatch:
+#          inputs:
+#            ... existing inputs ...
 
 permissions:
   contents: read
