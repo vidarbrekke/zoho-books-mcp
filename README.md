@@ -226,6 +226,8 @@ gh secret list --repo vidarbrekke/zoho-books-mcp --app actions --json name --jq 
 
 If this returns no output for `LINODE_HOST`, `LINODE_USER`, or `LINODE_SSH_KEY`, the manual runtime verification run will fail with `missing server host`.
 
+Note: this workflow does not define a deployment `environment`, so any `LINODE_*` values must be configured where repository actions secrets are available (for example, as repository or org secrets visible to the repo). Environment-scoped secrets are ignored unless the workflow job declares an `environment`.
+
 ## MCP Client Config (stdio)
 
 ### Copy-paste: Cursor `mcpServers` entry
