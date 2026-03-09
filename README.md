@@ -180,7 +180,7 @@ sudo ZOHO_MCP_REMOVE_LOGS=1 \\
 - `ZOHO_MCP_REMOVE_LOGS` removes `.zoho-mcp.log` and `.zoho-mcp.pid` from repo root.
 - `ZOHO_MCP_REMOVE_LOGROTATE` removes `/etc/logrotate.d/zoho-books-mcp` when `ZOHO_MCP_LOGROTATE_FILE` points there.
 
-When re-enabled, GitHub CI runs a deployment asset check on every push/PR:
+When enabled, GitHub CI runs a deployment asset check on every push/PR:
 
 ```bash
 ./scripts/ci-validate-systemd-assets.sh
@@ -188,7 +188,7 @@ When re-enabled, GitHub CI runs a deployment asset check on every push/PR:
 
 That CI check renders templates in CI (no root/systemctl access required) and validates the generated unit/timer/service shape.
 
-Manual runtime verification can be triggered against a hosted Linode after deployment when re-enabled:
+Manual runtime verification can be triggered against a hosted Linode after deployment when enabled:
 
 ```bash
 gh workflow run "Linode Runtime Verify" --field check_logrotate=true
@@ -228,18 +228,24 @@ If this returns no output for `LINODE_HOST`, `LINODE_USER`, or `LINODE_SSH_KEY`,
 
 Note: this workflow does not define a deployment `environment`, so any `LINODE_*` values must be configured where repository actions secrets are available (for example, as repository or org secrets visible to the repo). Environment-scoped secrets are ignored unless the workflow job declares an `environment`.
 
-### GitHub Actions: how to re-enable
+### GitHub Actions: operational control
 
-These workflows are currently paused (`on: []`):
+Workflows are now gated by a repository variable:
 
-- `.github/workflows/ci.yml`
-- `.github/workflows/linode-runtime-verify.yml`
+- Set `WORKFLOWS_ENABLED=true` to run CI and runtime verify jobs.
+- Set it to anything else (or leave unset) to skip workflow jobs.
 
-To re-enable CI and runtime verification:
+Set the variable in the repo settings or CLI:
 
-1. Restore the `on:` block in `.github/workflows/ci.yml` to include `push` and `pull_request` triggers.
-2. Restore the `workflow_dispatch` input block in `.github/workflows/linode-runtime-verify.yml`.
-3. Commit and push the change, then redeploy to Linode as needed.
+```bash
+gh variable set WORKFLOWS_ENABLED --repo vidarbrekke/zoho-books-mcp --body true
+```
+
+To disable:
+
+```bash
+gh variable set WORKFLOWS_ENABLED --repo vidarbrekke/zoho-books-mcp --body false
+```
 
 ## MCP Client Config (stdio)
 

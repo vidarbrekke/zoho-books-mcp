@@ -1,19 +1,17 @@
 name: CI
-on: []
-
-# Disabled temporarily:
-#   1) CI checks are no longer running on every push/PR.
-#   2) Re-enable by restoring the workflow trigger block.
-#        on:
-#          push:
-#            branches: [master]
-#          pull_request:
+# Workflow execution is controlled by repository variable WORKFLOWS_ENABLED=true.
+on:
+  push:
+    branches:
+      - master
+  pull_request:
 
 permissions:
   contents: read
 
 jobs:
   test:
+    if: ${{ vars.WORKFLOWS_ENABLED == 'true' }}
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
