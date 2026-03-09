@@ -228,6 +228,19 @@ If this returns no output for `LINODE_HOST`, `LINODE_USER`, or `LINODE_SSH_KEY`,
 
 Note: this workflow does not define a deployment `environment`, so any `LINODE_*` values must be configured where repository actions secrets are available (for example, as repository or org secrets visible to the repo). Environment-scoped secrets are ignored unless the workflow job declares an `environment`.
 
+### GitHub Actions: how to re-enable
+
+These workflows are currently paused (`on: []`):
+
+- `.github/workflows/ci.yml`
+- `.github/workflows/linode-runtime-verify.yml`
+
+To re-enable CI and runtime verification:
+
+1. Restore the `on:` block in `.github/workflows/ci.yml` to include `push` and `pull_request` triggers.
+2. Restore the `workflow_dispatch` input block in `.github/workflows/linode-runtime-verify.yml`.
+3. Commit and push the change, then redeploy to Linode as needed.
+
 ## MCP Client Config (stdio)
 
 ### Copy-paste: Cursor `mcpServers` entry
